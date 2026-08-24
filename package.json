@@ -1,0 +1,26 @@
+{
+  "name": "homelabmecanicsapi",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Steelman277/HomeLabMecanicsAPI.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Steelman277/HomeLabMecanicsAPI/issues"
+  },
+  "homepage": "https://github.com/Steelman277/HomeLabMecanicsAPI#readme",
+  "dependencies": {
+    "discord.js": "^14.27.0",
+    "dotenv": "^17.4.2",
+    "typescript": "^7.0.2"
+  }
+}
