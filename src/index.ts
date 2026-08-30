@@ -9,13 +9,19 @@ const craftyUsername = process.env.CRAFTY_USERNAME;
 const craftyPassword = process.env.CRAFTY_PASSWORD;
 const craftyServerId = process.env.CRAFTY_SERVER_ID;
 const whitelistChannelId = process.env.WHITELIST_CHANNEL_ID;
+const minecraftVerifiedRoleId = process.env.MINECRAFT_VERIFIED_ROLE_ID;
 
 if (!token) {
   throw new Error('DISCORD_TOKEN is missing from .env.local');
 }
 
 const client = new Client({
-  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent],
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
+  ],
 });
 
 client.on(Events.Error, (error) => {
@@ -66,9 +72,7 @@ async function addToWhitelist(username: string): Promise<void> {
 }
 
 client.on(Events.MessageCreate, async (message) => {
-  if (message.author.bot) {
-    return;
-  }
+  if (message.author.bot) return;
 
   if (message.content === '!ping') {
     await message.reply('Pong!');
@@ -81,6 +85,16 @@ client.on(Events.MessageCreate, async (message) => {
   if (!isWhitelistCommand && !isWhitelistChannel) {
     return;
   }
+if (isWhitelistCommand) {
+  if (!minecraftVerifiedRoleId) {
+    await message.reply('Minecraft verified role ID is not configured.');
+    return;
+  }
+if (!message.member || !message.member.roles.cache.has(minecraftVerifiedRoleId)) {
+    await message.reply('You must have the Minecraft Verified role to use this command.');
+    return;
+  }
+}
 
   if (isWhitelistCommand && whitelistChannelId && message.channelId !== whitelistChannelId) {
     await message.reply('Please use the whitelist channel for this command.');
