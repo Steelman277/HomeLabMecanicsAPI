@@ -116,7 +116,7 @@ if (!message.member || !message.member.roles.cache.has(minecraftVerifiedRoleId))
   } catch (error) {
     console.error('Whitelist request failed:', error);
     await message.reply('I could not update the Minecraft whitelist. Please contact an administrator.');
-    await message.reply('@admin please check that I have the correct information in the files');
+    await message.reply('This is a dev build of the code so please keep that in mind while testing');
   }
 });
 
