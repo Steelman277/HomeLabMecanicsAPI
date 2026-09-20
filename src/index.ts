@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import { Client, Events, GatewayIntentBits } from 'discord.js';
+import { Agent, fetch } from 'undici';
 
 dotenv.config({ path: '.env.local' });
 
@@ -8,6 +9,11 @@ const craftyUrl = process.env.CRAFTY_URL?.replace(/\/$/, '');
 const craftyUsername = process.env.CRAFTY_USERNAME;
 const craftyPassword = process.env.CRAFTY_PASSWORD;
 const craftyServerId = process.env.CRAFTY_SERVER_ID;
+const craftyAgent = new Agent({
+  connect: {
+    rejectUnauthorized: process.env.CRAFTY_TLS_REJECT_UNAUTHORIZED !== 'false',
+  },
+});
 const whitelistChannelId = process.env.WHITELIST_CHANNEL_ID;
 const minecraftVerifiedRoleId = process.env.MINECRAFT_VERIFIED_ROLE_ID;
 
@@ -39,6 +45,7 @@ async function addToWhitelist(username: string): Promise<void> {
 
   const loginResponse = await fetch(`${craftyUrl}/api/v2/auth/login`, {
     method: 'POST',
+    dispatcher: craftyAgent,
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username: craftyUsername, password: craftyPassword }),
   });
@@ -58,6 +65,7 @@ async function addToWhitelist(username: string): Promise<void> {
     `${craftyUrl}/api/v2/servers/${encodeURIComponent(craftyServerId)}/stdin`,
     {
       method: 'POST',
+      dispatcher: craftyAgent,
       headers: {
         Authorization: `Bearer ${craftyToken}`,
         'Content-Type': 'application/json',
