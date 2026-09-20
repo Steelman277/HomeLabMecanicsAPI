@@ -16,6 +16,7 @@ const craftyAgent = new Agent({
 });
 const whitelistChannelId = process.env.WHITELIST_CHANNEL_ID;
 const minecraftVerifiedRoleId = process.env.MINECRAFT_VERIFIED_ROLE_ID;
+const minecraftWhitelistedRoleId = process.env.MINECRAFT_WHITELISTED_ROLE_ID;
 
 if (!token) {
   throw new Error('DISCORD_TOKEN is missing from .env.local');
@@ -138,8 +139,15 @@ if (!message.member || !message.member.roles.cache.has(minecraftVerifiedRoleId))
 
   try {
     await addToWhitelist(username);
-    await message.reply(`${username} was added to the Minecraft whitelist.`);
-  } catch (error) {
+
+    if (!minecraftWhitelistedRoleId || !message.guild || !message.member) {
+      throw new Error('Whitelisted role or guild member is not configured');
+    }
+
+    await message.member.roles.add(minecraftWhitelistedRoleId);
+    await message.reply(`${username} was added to the Minecraft whitelist and received the role.`);
+  } 
+  catch (error) {
     console.error('Whitelist request failed:', error);
     await message.reply('I could not update the Minecraft whitelist. Please contact an administrator.');
   }
