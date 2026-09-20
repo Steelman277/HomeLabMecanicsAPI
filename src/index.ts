@@ -54,11 +54,14 @@ async function addToWhitelist(username: string): Promise<void> {
     throw new Error(`Crafty login failed with HTTP ${loginResponse.status}`);
   }
 
-  const loginData = await loginResponse.json() as { token?: string; access_token?: string };
-  const craftyToken = loginData.token ?? loginData.access_token;
+  const loginData = await loginResponse.json() as unknown;
+  const craftyToken = findCraftyToken(loginData);
 
   if (!craftyToken) {
-    throw new Error('Crafty login response did not contain a token');
+    const responseKeys = loginData && typeof loginData === 'object'
+      ? Object.keys(loginData).join(', ')
+      : typeof loginData;
+    throw new Error(`Crafty login response did not contain a token (fields: ${responseKeys || 'none'})`);
   }
 
   const commandResponse = await fetch(
@@ -77,6 +80,21 @@ async function addToWhitelist(username: string): Promise<void> {
   if (!commandResponse.ok) {
     throw new Error(`Crafty whitelist request failed with HTTP ${commandResponse.status}`);
   }
+}
+
+function findCraftyToken(value: unknown): string | undefined {
+  if (!value || typeof value !== 'object') return undefined;
+
+  for (const [key, nestedValue] of Object.entries(value)) {
+    if (['token', 'access_token', 'accessToken'].includes(key) && typeof nestedValue === 'string') {
+      return nestedValue;
+    }
+
+    const nestedToken = findCraftyToken(nestedValue);
+    if (nestedToken) return nestedToken;
+  }
+
+  return undefined;
 }
 
 client.on(Events.MessageCreate, async (message) => {
