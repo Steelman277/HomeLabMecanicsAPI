@@ -144,7 +144,7 @@ if (!message.member || !message.member.roles.cache.has(minecraftVerifiedRoleId))
       throw new Error('Whitelisted role or guild member is not configured');
     }
 
-    await message.member.roles.add(minecraftWhitelistedRoleId);
+    
     await message.reply(`${username} was added to the Minecraft whitelist and received the role.`);
   } 
   catch (error) {
