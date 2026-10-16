@@ -74,7 +74,7 @@ async function addToWhitelist(username: string): Promise<void> {
         Authorization: `Bearer ${craftyToken}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ command: `whitelist add ${username}` }),
+      body: JSON.stringify({ command: `Whitelist add ${username}` }),
     },
   );
 
@@ -100,11 +100,43 @@ function findCraftyToken(value: unknown): string | undefined {
 
 client.on(Events.MessageCreate, async (message) => {
   if (message.author.bot) return;
-
+  
   if (message.content === '!ping') {
     await message.reply('Pong!');
     return;
   }
+const POLL_INTERVAL = 5000; // 5 seconds
+let lastLogLength = 0;
+
+async function pollLogs() {
+  const res = await fetch(`https://your-crafty-url/api/v2/servers/${craftyServerId}/logs`, {
+    headers: { Authorization: `Bearer ${  }` }
+  });
+
+  const data = await res.json();
+  const lines = data.data; // array of log lines
+
+  const newLines = lines.slice(lastLogLength);
+  lastLogLength = lines.length;
+
+  for (const line of newLines) {
+    if (line.includes(' joined the game')) {
+      const player = line.match(/: (\w+) joined/)?.[1];
+      postToDiscord(`✅ **${player}** joined the server.`);
+    }
+    if (line.includes(' left the game')) {
+      const player = line.match(/: (\w+) left/)?.[1];
+      postToDiscord(`👋 **${player}** left the server.`);
+    }
+  }
+}
+
+async function postToDiscord(message) {
+  const channel = await client.channels.fetch('LOG_CHANNEL_ID');
+  await channel.send(message);
+}
+
+setInterval(pollLogs, POLL_INTERVAL);
 
   const isWhitelistCommand = message.content.startsWith('!whitelist');
   const isWhitelistChannel = whitelistChannelId === message.channelId;
