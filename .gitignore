@@ -9,7 +9,7 @@
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
-
+node_modules
 # testing
 /coverage
 
@@ -35,7 +35,7 @@ yarn-error.log*
 .env.local
 # vercel
 .vercel
-
+/.bin
 # typescript
 *.tsbuildinfo
 next-env.d.ts
